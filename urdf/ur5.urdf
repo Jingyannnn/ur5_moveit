@@ -217,6 +217,32 @@
             <inertia ixx="8.062472608343e-05" ixy="0.0" ixz="0.0" iyy="8.062472608343e-05" iyz="0.0" izz="0.0001321171875" />
         </inertial>
     </link>
+    
+   <link name="box_link">
+     <inertial>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <mass value="0.1"/>
+       <inertia ixx="0.1"  ixy="0.1"  ixz="0.1" iyy="0.1" iyz="0.1" izz="0.1" />
+     </inertial>
+
+     <visual>
+       <origin xyz="0 0 0" rpy="0 0 0" />
+       <geometry>
+         <box size="1 1 0.001" />
+       </geometry>
+       <material name="Cyan">
+         <color rgba="0 1.0 1.0 1.0"/>
+       </material>
+     </visual>
+
+     <collision>
+       <origin xyz="0 0 0" rpy="0 0 0"/>
+       <geometry>
+         <box size="1 1 0.001" />
+       </geometry>
+     </collision>
+   </link>
+   
     <!-- joints: main serial chain -->
 
     <link name="world">
@@ -299,6 +325,11 @@
         <parent link="base_link" />
         <child link="base" />
     </joint>
+    <joint name="box_link_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 -0.1" />
+        <parent link="base_link" />
+        <child link="box_link" />
+    </joint>
     <!-- ROS-Industrial 'flange' frame: attachment point for EEF models -->
     <link name="flange" />
     <joint name="wrist_3-flange" type="fixed">
@@ -375,7 +406,9 @@
             <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
         </actuator>
     </transmission>
-
+<material name="LightGrey">
+                <color rgba="0.7 0.7 0.7 1.0" />
+            </material>
     <!--
       Inject Gazebo ROS Control plugin, which allows us to use ros_control
       controllers to control the virtual robot hw.
@@ -392,6 +425,90 @@
         <plugin name="gazebo_ros_control">
             <robotNamespace>/</robotNamespace>
         </plugin>
+    </gazebo> -->
+    
+
+   
+    <!-- Size of square 'camera' box -->
+    <joint name="camera_joint" type="fixed">
+        <axis xyz="0 1 0" />
+        <origin xyz="0 0 0" rpy="0 -1.57 0" />
+        <parent link="tool0" />
+        <child link="camera_link" />
+    </joint>
+    <!-- Camera -->
+    <link name="camera_link">
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <box size="0.05 0.05 0.05"/>
+            </geometry>
+        </collision>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <box size="0.05 0.05 0.05"/>
+            </geometry>
+            <material name="LightGrey">
+                <color rgba="0.7 0.7 0.7 1.0" />
+            </material>
+        </visual>
+        <inertial>
+            <mass value="1e-5" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+        </inertial>
+    </link>
+    <!-- camera -->
+    <gazebo reference="camera_link">
+        <sensor type="camera" name="camera1">
+            <update_rate>30.0</update_rate>
+            <camera name="head">
+                <horizontal_fov>1.3962634</horizontal_fov>
+                <image>
+                    <width>800</width>
+                    <height>800</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.02</near>
+                    <far>300</far>
+                </clip>
+                <noise>
+                    <type>gaussian</type>
+                    <!-- Noise is sampled independently per pixel on each frame.
+               That pixel's noise value is added to each of its color
+               channels, which at that point lie in the range [0,1]. -->
+                    <mean>0.0</mean>
+                    <stddev>0.007</stddev>
+                </noise>
+            </camera>
+            <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+                <alwaysOn>true</alwaysOn>
+                <updateRate>30.0</updateRate>
+                <cameraName>ur5/camera1</cameraName>
+        <!--robotNamespace>/</robotNamespace-->
+                <imageTopicName>image_raw</imageTopicName>
+                <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+                <frameName>camera_link</frameName>
+                <hackBaseline>0.07</hackBaseline>
+                <distortionK1>0.0</distortionK1>
+                <distortionK2>0.0</distortionK2>
+                <distortionK3>0.0</distortionK3>
+                <distortionT1>0.0</distortionT1>
+                <distortionT2>0.0</distortionT2>
+            </plugin>
+        </sensor>
+        <!-- <plugin name="gazebo_ros_control">
+            <robotNamespace>/</robotNamespace>
+        </plugin> -->
+    </gazebo>
+    <!-- <gazebo>
+    <plugin name="gazebo_ros_control">
+    </plugin>
+  </gazebo> -->
+    <!-- <gazebo>
+        <plugin name="ros_control" filename="libgazebo_ros_control.so" />
     </gazebo> -->
 </robot>
 
