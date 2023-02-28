@@ -37,6 +37,11 @@
   <!-- <run_depend>warehouse_ros_mongo</run_depend> -->
   <run_depend>ur_description</run_depend>
   
+  <run_depend>gazebo_ros</run_depend> 
+  <export> 
+    <gazebo_ros gazebo_model_path="${prefix}/aruco_gazebo"/> 
+    <gazebo_ros gazebo_media_path="${prefix}/aruco_gazebo"/> 
+  </export>
 
 
 </package>
