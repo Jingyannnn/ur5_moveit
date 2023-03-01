@@ -1,6 +1,6 @@
 ## add to .bashrc
 ```
-export GAZEBO_MODEL_PATH=~/<workspace_name>/src/ur5_moveit/aruco_gazebo":{GAZEBO_MODEL_PATH}
+export GAZEBO_MODEL_PATH=~/<workspace_name>/src/ur5_moveit/aruco_gazebo:{GAZEBO_MODEL_PATH}
 ```
 
 ## add to package.xml

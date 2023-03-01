@@ -14,7 +14,13 @@
     <include>
       <uri>model://aruco_visual_marker_1</uri>
       <name>aruco_marker_1</name>
-      <pose>0 0 0.1 0 0 0 </pose>
+      <pose>0 0 2.1 0 0 0 </pose>
+    </include>
+    
+    <include>
+      <uri>model://aruco_visual_marker_1_pad</uri>
+      <name>aruco_marker_1_pad</name>
+      <pose>0 0 2.1 0 0 0 </pose>
     </include>
 
   </world>
