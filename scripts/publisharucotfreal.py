@@ -56,15 +56,16 @@ def calibratecamera():
     print("objpoints: " + str(len(objpoints)))
     print("imgpoints: " + str(len(imgpoints)))
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
+    print(ret, mtx, dist, rvecs, tvecs)
     return ret, mtx, dist, rvecs, tvecs
 
 def publishtf(cap, mtx, dist):
-    
+    cv2.imshow('image',cap)
     # ret, frame = cap
     #if ret returns false, there is likely a problem with the webcam/camera.
     #In that case uncomment the below line, which will replace the empty frame 
     #with a test image used in the opencv docs for aruco at https://www.docs.opencv.org/4.5.3/singlemarkersoriginal.jpg
-    # frame = cv2.imread('./images/test image.jpg') 
+    # cap = cv2.imread('camera_image.jpeg') 
 
     # operations on the frame
     gray = cv2.cvtColor(cap, cv2.COLOR_BGR2GRAY)
@@ -116,7 +117,7 @@ def publishtf(cap, mtx, dist):
         # code to show 'No Ids' when no markers are found
         cv2.putText(cap, "No Ids", (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)
 
-    # display the resulting frame
+    # display the resulting framecap = cv2.imread('camera_image.jpeg') 
     cv2.imshow('frame',cap)
     # if cv2.waitKey(1) & 0xFF == ord('q'):
     #     break
@@ -145,10 +146,11 @@ class ImageConvert:
         try:
             # print("cb triggered")
             self.cv_image = self.bridge.imgmsg_to_cv2(data, "rgb8")
-            self.img = cv2.imwrite('camera_image.jpeg', self.cv_image)
+            img = cv2.imwrite('camera_image.jpeg', self.cv_image)
         except CvBridgeError as e:
             print(e)
        
+    
 
         # (rows,cols,channels) = cv_image.shapeargs[
         # if cols > 60 and rows > 60 :
@@ -181,6 +183,7 @@ if __name__ == '__main__':
             cap=image_convert.get_data()
             # temp_cap=cv2.imread(cv2.samples.findFile("camera_image.jpeg"))
             # cap=np.array(temp_cap, dtype=np.uint8)
+            # cap = cv2.imread('camera_image.jpeg') 
             quaternion,tvec = publishtf(cap, mtx, dist)
             # Pose pose
             pose = Pose()
