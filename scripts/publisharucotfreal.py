@@ -70,7 +70,7 @@ def publishtf(cap, mtx, dist):
     gray = cv2.cvtColor(cap, cv2.COLOR_BGR2GRAY)
 
     # set dictionary size depending on the aruco marker selected
-    aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
+    aruco_dict = aruco.Dictionary_get(aruco.DICT_5X5_250)
 
     # detector parameters can be set here (List of detection parameters[3])
     parameters = aruco.DetectorParameters_create()
@@ -112,6 +112,7 @@ def publishtf(cap, mtx, dist):
 
 
     else:
+        print("123")
         # code to show 'No Ids' when no markers are found
         cv2.putText(cap, "No Ids", (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)
 
@@ -142,12 +143,12 @@ class ImageConvert:
 
     def callback(self,data):
         try:
-            self.cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+            # print("cb triggered")
+            self.cv_image = self.bridge.imgmsg_to_cv2(data, "rgb8")
+            self.img = cv2.imwrite('camera_image.jpeg', self.cv_image)
         except CvBridgeError as e:
             print(e)
-        else:
-            self.img = cv2.imwrite('camera_image.jpeg', self.cv_image)
-            
+       
 
         # (rows,cols,channels) = cv_image.shapeargs[
         # if cols > 60 and rows > 60 :
@@ -163,7 +164,7 @@ class ImageConvert:
 
     def get_data(self):
 
-        return self.img
+        return self.cv_image
 
 # def talker(quaternion, xyz,rvec,tvec):
     
@@ -177,9 +178,9 @@ if __name__ == '__main__':
         
 
         while not rospy.is_shutdown():
-            # cap=image_convert.get_data()
-            temp_cap=cv2.imread(cv2.samples.findFile("camera_image.jpeg"))
-            cap=np.array(temp_cap, dtype=np.uint8)
+            cap=image_convert.get_data()
+            # temp_cap=cv2.imread(cv2.samples.findFile("camera_image.jpeg"))
+            # cap=np.array(temp_cap, dtype=np.uint8)
             quaternion,tvec = publishtf(cap, mtx, dist)
             # Pose pose
             pose = Pose()
