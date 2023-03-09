@@ -54,7 +54,9 @@
   <exec_depend>gazebo_ros</exec_depend> 
   <export> 
     <gazebo_ros gazebo_model_path="${prefix}/aruco_gazebo"/> 
-    <gazebo_ros gazebo_media_path="${prefix}/aruco_gazebo"/> 
+    <gazebo_ros gazebo_media_path="${prefix}/aruco_gazebo"/>  
+    <gazebo_ros gazebo_model_path="${prefix}/gazebo_aruco_box"/> 
+    <gazebo_ros gazebo_media_path="${prefix}/gazebo_aruco_box"/> 
   </export>
 
 

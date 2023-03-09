@@ -56,11 +56,11 @@ def calibratecamera():
     print("objpoints: " + str(len(objpoints)))
     print("imgpoints: " + str(len(imgpoints)))
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
-    print(ret, mtx, dist, rvecs, tvecs)
+    print(dist)
+
     return ret, mtx, dist, rvecs, tvecs
 
 def publishtf(cap, mtx, dist):
-    cv2.imshow('image',cap)
     # ret, frame = cap
     #if ret returns false, there is likely a problem with the webcam/camera.
     #In that case uncomment the below line, which will replace the empty frame 
@@ -69,9 +69,9 @@ def publishtf(cap, mtx, dist):
 
     # operations on the frame
     gray = cv2.cvtColor(cap, cv2.COLOR_BGR2GRAY)
-
+    
     # set dictionary size depending on the aruco marker selected
-    aruco_dict = aruco.Dictionary_get(aruco.DICT_5X5_250)
+    aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
 
     # detector parameters can be set here (List of detection parameters[3])
     parameters = aruco.DetectorParameters_create()
@@ -87,35 +87,35 @@ def publishtf(cap, mtx, dist):
     # if no check is added the code will crash
     rvec = None 
     tvec = None
-    if np.all(ids != None):
-        print ("321")
+    # if np.all(ids != None):
+    #     print ("321")
 
         # estimate pose of each marker and return the values
         # rvet and tvec-different from camera coefficients
-        rvec, tvec ,_ = aruco.estimatePoseSingleMarkers(corners, 0.05, mtx, dist)
-        print (tvec)
-        #(rvec-tvec).any() # get rid of that nasty numpy value array error
+    rvec, tvec ,_ = aruco.estimatePoseSingleMarkers(corners, 0.05, mtx, dist)
+    print (tvec)
+    #(rvec-tvec).any() # get rid of that nasty numpy value array error
 
-        for i in range(0, ids.size):
-            # draw axis for the aruco markers
-            cv2.drawFrameAxes(cap, mtx, dist, rvec[i], tvec[i], 0.1)
+    for i in range(0, ids.size):
+        # draw axis for the aruco markers
+        cv2.drawFrameAxes(cap, mtx, dist, rvec[i], tvec[i], 0.1)
 
-        # draw a square around the markers
-        aruco.drawDetectedMarkers(cap, corners)
-
-
-        # code to show ids of the marker found
-        strg = ''
-        for i in range(0, ids.size):
-            strg += str(ids[i][0])+', '
-
-        cv2.putText(cap, "Id: " + strg, (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)
+    # draw a square around the markers
+    aruco.drawDetectedMarkers(cap, corners)
 
 
-    else:
-        print("123")
-        # code to show 'No Ids' when no markers are found
-        cv2.putText(cap, "No Ids", (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)
+    # code to show ids of the marker found
+    strg = ''
+    for i in range(0, ids.size):
+        strg += str(ids[i][0])+', '
+
+    cv2.putText(cap, "Id: " + strg, (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)
+
+
+    # else:
+    #     print("123")
+    #     # code to show 'No Ids' when no markers are found
+    #     cv2.putText(cap, "No Ids", (0,64), font, 1, (0,255,0),2,cv2.LINE_AA)
 
     # display the resulting framecap = cv2.imread('camera_image.jpeg') 
     cv2.imshow('frame',cap)
@@ -165,6 +165,8 @@ class ImageConvert:
         #     print(e)
 
     def get_data(self):
+        if(self.cv_image.any() == None):
+            print("get data is null")
 
         return self.cv_image
 
@@ -181,6 +183,7 @@ if __name__ == '__main__':
 
         while not rospy.is_shutdown():
             cap=image_convert.get_data()
+            cv2.imshow("image",cap)
             # temp_cap=cv2.imread(cv2.samples.findFile("camera_image.jpeg"))
             # cap=np.array(temp_cap, dtype=np.uint8)
             # cap = cv2.imread('camera_image.jpeg') 
