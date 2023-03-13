@@ -71,7 +71,7 @@ def publishtf(cap, mtx, dist):
     gray = cv2.cvtColor(cap, cv2.COLOR_BGR2GRAY)
     
     # set dictionary size depending on the aruco marker selected
-    aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
+    aruco_dict = aruco.Dictionary_get(aruco.DICT_5X5_1000)
 
     # detector parameters can be set here (List of detection parameters[3])
     parameters = aruco.DetectorParameters_create()
@@ -96,9 +96,9 @@ def publishtf(cap, mtx, dist):
     print (tvec)
     #(rvec-tvec).any() # get rid of that nasty numpy value array error
 
-    for i in range(0, ids.size):
-        # draw axis for the aruco markers
-        cv2.drawFrameAxes(cap, mtx, dist, rvec[i], tvec[i], 0.1)
+    # for i in range(0, ids.size):
+    #     # draw axis for the aruco markers
+    #     cv2.drawFrameAxes(cap, mtx, dist, rvec[i], tvec[i], 0.1)
 
     # draw a square around the markers
     aruco.drawDetectedMarkers(cap, corners)
