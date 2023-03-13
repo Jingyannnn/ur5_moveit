@@ -6,13 +6,26 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   tf
+  message_generation
+)
+
+add_message_files(
+  FILES
+  Poses.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
 )
 
 catkin_package(
   INCLUDE_DIRS include
   #LIBRARIES tf
-  CATKIN_DEPENDS roscpp rospy std_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
 )
+
 
 include_directories(
  include
@@ -27,6 +40,7 @@ catkin_install_python(PROGRAMS
   scripts/publisharucotfsimu.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
 
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   PATTERN "setup_assistant.launch" EXCLUDE)

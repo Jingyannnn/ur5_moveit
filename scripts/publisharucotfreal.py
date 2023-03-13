@@ -3,6 +3,7 @@
 # license removed for brevity
 import rospy
 from geometry_msgs.msg import Pose
+from ur5_moveit.msg import Poses
 import numpy as np
 import cv2
 import tf
@@ -84,7 +85,7 @@ def publishtf(cap, mtx, dist):
     font = cv2.FONT_HERSHEY_SIMPLEX
 
     # check if the ids list is not empty
-    # if no check is added the code will crash
+    # if no check is added the code will crashHeader header
     rvec = None 
     tvec = None
     # if np.all(ids != None):
@@ -190,6 +191,7 @@ if __name__ == '__main__':
             quaternion,tvec = publishtf(cap, mtx, dist)
             # Pose pose
             pose = Pose()
+            message = Poses()
             pose.position.x = tvec[0][0][0]
             pose.position.y = tvec[0][0][1]
             pose.position.z = tvec[0][0][2]
@@ -199,11 +201,12 @@ if __name__ == '__main__':
             pose.orientation.z = quaternion[2]
             rospy.loginfo(pose)
             pub.publish(pose)
-            print (pose)
+            pub.publish(message)
+            # print (pose)
 
     except rospy.ROSInterruptException:
         pass
 
 # When everything done, release the capture
-cap.release()
+# cap.release()
 cv2.destroyAllWindows()
