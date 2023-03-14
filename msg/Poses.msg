@@ -1,2 +1,2 @@
 int32 Ids
-geometry_msgs/Poses Poses
+geometry_msgs/PoseStamped Poses

@@ -98,7 +98,7 @@ def publishtf(cap, mtx, dist):
     #(rvec-tvec).any() # get rid of that nasty numpy value array error
 
     # for i in range(0, ids.size):
-    #     # draw axis for the aruco markers
+    #     # draw axis for the aruco markersrame_
     #     cv2.drawFrameAxes(cap, mtx, dist, rvec[i], tvec[i], 0.1)
 
     # draw a square around the markers
@@ -134,7 +134,7 @@ def publishtf(cap, mtx, dist):
 
     # convert the matrix to a quaternion
     quaternion = tf.transformations.quaternion_from_matrix(rotation_matrix)
-    return quaternion,tvec
+    return quaternion,tvec,ids
 
 class ImageConvert:
 
@@ -176,7 +176,7 @@ class ImageConvert:
 if __name__ == '__main__':
     try:
         image_convert = ImageConvert()
-        pub = rospy.Publisher('arucotf', Pose, queue_size=10)
+        pub = rospy.Publisher('arucotf', Poses, queue_size=10)
         rospy.init_node('talker', anonymous=True)
         rate = rospy.Rate(10) # 10hz
         ret, mtx, dist, rvecs, tvecs = calibratecamera()
@@ -186,9 +186,9 @@ if __name__ == '__main__':
             cap=image_convert.get_data()
             cv2.imshow("image",cap)
             # temp_cap=cv2.imread(cv2.samples.findFile("camera_image.jpeg"))
-            # cap=np.array(temp_cap, dtype=np.uint8)
+            # cap=np.array(temp_cap, dtype=np.uint8)ids,
             # cap = cv2.imread('camera_image.jpeg') 
-            quaternion,tvec = publishtf(cap, mtx, dist)
+            quaternion,tvec,ids = publishtf(cap, mtx, dist)
             # Pose pose
             pose = Pose()
             message = Poses()
@@ -199,10 +199,18 @@ if __name__ == '__main__':
             pose.orientation.x = quaternion[0]
             pose.orientation.y = quaternion[1]
             pose.orientation.z = quaternion[2]
-            rospy.loginfo(pose)
-            pub.publish(pose)
+
+            message.Poses.pose = pose
+            message.Poses.header.stamp = rospy.Time.now()
+            message.Poses.header.frame_id = "camera_link"
+            message.Ids=ids
+
+
+            # rospy.loginfo(pose)
+            rospy.loginfo(message)
+            # pub.publish(pose)
             pub.publish(message)
-            # print (pose)
+            # print (pose)ids,
 
     except rospy.ROSInterruptException:
         pass
