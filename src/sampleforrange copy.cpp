@@ -13,12 +13,31 @@
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 
+// static const std::string PLANNING_GROUP = "manipulator";
+// moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
+// geometry_msgs::Pose target_pose1;
+
+// void setposegoal(){
+//     target_pose1.orientation.w = 1.0;
+//     target_pose1.position.x = 0;
+//     target_pose1.position.y = 0.5;
+//     target_pose1.position.z = 0.5;
+//     move_group_interface.setPoseTarget(target_pose1);
+//   }
+
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "sampleforrange");
 
   ros::AsyncSpinner spinner(4); // Use 4 threads
   spinner.start();
+
+  // Load the robot model
+  robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+  robot_model::RobotModelPtr kinematic_model = robot_model_loader.getModel();
+
+  // Create a RobotState instance
+  robot_state::RobotState start_state(kinematic_model);
 
   static const std::string PLANNING_GROUP = "manipulator";
   moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
@@ -36,24 +55,63 @@ int main(int argc, char **argv)
   std::copy(move_group_interface.getJointModelGroupNames().begin(),
             move_group_interface.getJointModelGroupNames().end(), std::ostream_iterator<std::string>(std::cout, ", "));
 
-  // Create a RobotState instance
-  robot_state::RobotState target_state(*move_group_interface.getCurrentState());
+  // move_group_interface.setJointValueTarget(joint_group_positions);
+  // target_pose1.orientation.w = 1;
+  // target_pose1.position.x = 0.5;
+  // target_pose1.position.y = 0;
+  // target_pose1.position.z = 0.3;
+
   geometry_msgs::Pose start_pose2;
   start_pose2.orientation.w = 1.0;
-  start_pose2.position.x = 0.35;
+  start_pose2.position.x = 0.25;
   start_pose2.position.y = -0.05;
   start_pose2.position.z = 0.8;
-  target_state.setFromIK(joint_model_group, start_pose2);
-  std::vector<double> joint_group_positions;
-  target_state.copyJointGroupPositions(joint_model_group, joint_group_positions);
-  move_group_interface.setJointValueTarget(joint_group_positions);
+  start_state.setFromIK(joint_model_group, start_pose2);
+  std::vector<double> joint_values;
+  // robot_state.copyJointGroupPositions(robot_state.getRobotModel()->getDefaultJointGroup("manipulator"), joint_values);
+  start_state.copyJointGroupPositions(joint_model_group, joint_values);
+  // move_group_interface.setStartState(start_state);
 
+  std::cout << "Joint value:";
+  for (auto j : joint_values)
+    std::cout << j << ",";
+  std::cout << std::endl;
+
+  sensor_msgs::JointState joint_state;
+  joint_state.position.resize(6);
+  joint_state.name.resize(6);
+  joint_state.name[0] = "shoulder_pan_joint";
+  joint_state.name[1] = "shoulder_lift_joint";
+  joint_state.name[2] = "elbow_joint";
+  joint_state.name[3] = "wrist_1_joint";
+  joint_state.name[4] = "wrist_2_joint";
+  joint_state.name[5] = "wrist_3_joint";
+
+  std::vector<double>
+      joint_group_positions;
+  for (int i = 0; i < 6; i++)
+  {
+    joint_group_positions.push_back(0.0);
+  }
+  start_state.setVariablePositions(joint_state.name, joint_group_positions);
+  move_group_interface.setStartState(start_state);
+  std::cout << "Joint names:";
+  for (auto n : joint_model_group->getJointModelNames())
+    std::cout << n << ",";
+  std::cout << std::endl;
+
+  // joint_group_positions = {0, -M_PI / 2, 0.0, 0.0, -1.5708, 1.06041};
+  move_group_interface.setJointValueTarget(joint_values);
+  // move_group_interface.setPoseTarget(target_pose1);
+  // setposegoal();
+
+  // execute
   moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
   bool success = (move_group_interface.plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
 
   ROS_INFO_NAMED("ur5", "Visualizing plan 1 (pose goal) %s", success ? "" : "FAILED");
-  move_group_interface.execute(my_plan);
+
   // visualise the paln path
 
   Eigen::Isometry3d text_pose = Eigen::Isometry3d::Identity();

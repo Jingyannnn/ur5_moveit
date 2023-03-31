@@ -1,11 +1,14 @@
 <?xml version="1.0"?>
 <launch>
-
   <!-- Load joint controller configurations from YAML file to parameter server -->
-  <rosparam file="$(find ur5_moveit)/config/ros_controllers.yaml" command="load"/>
+  <rosparam file="$(find ur5_moveit)/config/gazebo_controllers.yaml" command="load"/>
 
   <!-- Load the controllers -->
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="manipulator_controller "/>
-
+    output="screen" ns="/" args="joint_controller_ur1
+					joint_controller_ur2
+					joint_controller_ur3
+					joint_controller_ur4
+					joint_controller_ur5
+					joint_controller_ur6"/>
 </launch>
