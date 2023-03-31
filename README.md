@@ -11,3 +11,6 @@ export GAZEBO_MODEL_PATH=~/<workspace_name>/src/ur5_moveit/aruco_gazebo:{GAZEBO_
     <gazebo_ros gazebo_media_path="${prefix}/aruco_gazebo"/> 
 </export>
 ```
+##execute
+roslaunch ur5_moveit demo_gazebo.launch
+rosrun ur5_moveit sampleforrange
