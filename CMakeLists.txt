@@ -7,6 +7,9 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   message_generation
+  moveit_ros_planning_interface
+  moveit_core
+  moveit_visual_tools
 )
 
 add_message_files(
@@ -45,3 +48,10 @@ catkin_install_python(PROGRAMS
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
   PATTERN "setup_assistant.launch" EXCLUDE)
 install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+
+# add_executable(my_tf_listener src/getcambase.cpp)
+# target_link_libraries(my_tf_listener ${catkin_LIBRARIES})
+
+add_executable(sampleforrange src/sampleforrange.cpp)
+target_link_libraries(sampleforrange ${catkin_LIBRARIES})

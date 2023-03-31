@@ -206,12 +206,11 @@ if __name__ == '__main__':
             message.Ids=ids
 
 
-            # rospy.loginfo(pose)
+            
             rospy.loginfo(message)
-            # pub.publish(pose)
+            
             pub.publish(message)
-            # print (pose)ids,
-
+ 
     except rospy.ROSInterruptException:
         pass
 
