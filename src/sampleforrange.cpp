@@ -13,9 +13,9 @@
 #include <moveit/robot_model/robot_model.h>
 #include <moveit/robot_state/robot_state.h>
 
-#include<random>
-#include<cmath>
-#include<chrono>
+#include <random>
+#include <cmath>
+#include <chrono>
 
 
 void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::planning_interface::PlanningSceneInterface* scene,robot_state::RobotState* state, robot_model_loader::RobotModelLoader* model){
@@ -51,43 +51,47 @@ void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::
         double pitchfororientation[3][3]={{cos(phi),0,sin(phi)},{0,1,0},{-sin(phi),0,cos(phi)}};
         double Point_orientation[3][3] = {{sin(theta),cos(theta)*sin(phi),-cos(theta)*cos(phi)},{-cos(theta),sin(theta)*sin(phi),-cos(phi)*sin(theta)},{0,cos(phi),sin(phi)}};
 
-        float r11 = sin(theta);
-        float r12 = cos(theta)*sin(phi);
-        float r13 = -cos(theta)*cos(phi);
-        float r21 = -cos(theta);
-        float r22 = sin(theta)*sin(phi);
-        float r23 = -cos(phi)*sin(theta);
-        float r31 = 0;
-        float r32 = cos(phi);
-        float r33 = sin(phi);
-        float q0 = (r11 + r22 + r33 + 1.0f) / 4.0f;
-        float q1 = (r11 - r22 - r33 + 1.0f) / 4.0f;
-        float q2 = (-r11 + r22 - r33 + 1.0f) / 4.0f;
-        float q3 = (-r11 - r22 + r33 + 1.0f) / 4.0f;
-        if (q0 < 0.0f) {
-          q0 = 0.0f;
+        float m00 = sin(theta);
+        float m01 = cos(theta)*sin(phi);
+        float m02 = -cos(theta)*cos(phi);
+        float m10 = -cos(theta);
+        float m11 = sin(theta)*sin(phi);
+        float m12 = -cos(phi)*sin(theta);
+        float m20 = 0;
+        float m21 = cos(phi);
+        float m22 = sin(phi);
+        if (m22 < 0) {
+            if (m00 >m11) {
+                float t = 1 + m00 -m11 -m22;
+                float q = quat( t, m01+m10, m20+m02, m12-m21 );
+            }
+            else {
+                float t = 1 -m00 + m11 -m22;
+                float q = quat( m01+m10, t, m12+m21, m20-m02 );
+            }
         }
-        if (q1 < 0.0f) {
-          q1 = 0.0f;
+        else {
+            if (m00 < -m11) {
+                float t = 1 -m00 -m11 + m22;
+                float q = quat( m20+m02, m12+m21, t, m01-m10 );
+            }
+            else {
+                float t = 1 + m00 + m11 + m22;
+                float q = quat( m12-m21, m20-m02, m01-m10, t );
+            }
         }
-        if (q2 < 0.0f) {
-          q2 = 0.0f;
-        }
-        if (q3 < 0.0f) {
-          q3 = 0.0f;
-        }
-        q0 = sqrt(q0);
-        q1 = sqrt(q1);
-        q2 = sqrt(q2);
-        q3 = sqrt(q3);
-
+        q *= 0.5 / sqrt(t);
+        float q1 = q[0][0];
+        float q2 = q[0][1];
+        float q3 = q[0][2];
+        float q4 = q[0][3];
 
 
         geometry_msgs::Pose start_pose2;
         start_pose2.orientation.x = q1;
         start_pose2.orientation.y = q2;
         start_pose2.orientation.z = q3;
-        start_pose2.orientation.z = q0;
+        start_pose2.orientation.w = q4;
         start_pose2.position.x = -y;
         start_pose2.position.y = z;
         start_pose2.position.z = -x;
