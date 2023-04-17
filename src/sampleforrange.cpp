@@ -16,7 +16,7 @@
 #include <random>
 #include <cmath>
 #include <chrono>
-
+#include <Eigen/Geometry> 
 
 void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::planning_interface::PlanningSceneInterface* scene,robot_state::RobotState* state, robot_model_loader::RobotModelLoader* model){
   const moveit::core::JointModelGroup *joint_model_group =
@@ -35,7 +35,7 @@ void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::
     correct = fopen("correct.csv", "w");
     fprintf(correct, "Theta,Phi,x,y,z\n");
     for (int i = 0; i < N; i++) {
-        double radius= 0.5;
+        double radius= 0.25;
         double theta = 2 * M_PI * uniform01(generator);
         double phi = M_PI * uniform01(generator);
         double x = 0.5+radius*sin(phi) * cos(theta);
@@ -43,55 +43,40 @@ void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::
         double z = 0.5+ radius*cos(phi);
         fprintf(correct, "%f,%f,%f,%f,%f\n", theta, phi, x, y, z);
 
-        double Point_marker[3][1]={x,y,z};
-        double roll[3][3]={{1,0,0},{0,0,1},{0,-1,0}};
-        double pitch[3][3]={{0,-1,0},{1,0,0},{0,0,1}};
-        double Point_world[3][1]={-y,z,-x};
-        double rollfororientation[3][3]={{cos(theta),-sin(theta),0},{sin(theta),cos(theta),0},{0,0,1}};
-        double pitchfororientation[3][3]={{cos(phi),0,sin(phi)},{0,1,0},{-sin(phi),0,cos(phi)}};
-        double Point_orientation[3][3] = {{sin(theta),cos(theta)*sin(phi),-cos(theta)*cos(phi)},{-cos(theta),sin(theta)*sin(phi),-cos(phi)*sin(theta)},{0,cos(phi),sin(phi)}};
+        // double Point_marker[3][1]={x,y,z};
+        // double roll[3][3]={{1,0,0},{0,0,1},{0,-1,0}};
+        // double pitch[3][3]={{0,-1,0},{1,0,0},{0,0,1}};
+        // double Point_world[3][1]={-y,z,-x};
+        // double yawfororientation[3][3]={{cos(theta),-sin(theta),0},{sin(theta),cos(theta),0},{0,0,1}};
+        // double pitchfororientation[3][3]={{cos(phi),0,sin(phi)},{0,1,0},{-sin(phi),0,cos(phi)}};
+        // double Point_orientation[3][3] = {{sin(theta),cos(theta)*sin(phi),-cos(theta)*cos(phi)},{-cos(theta),sin(theta)*sin(phi),-cos(phi)*sin(theta)},{0,cos(phi),sin(phi)}};
 
-        float m00 = sin(theta);
-        float m01 = cos(theta)*sin(phi);
-        float m02 = -cos(theta)*cos(phi);
-        float m10 = -cos(theta);
-        float m11 = sin(theta)*sin(phi);
-        float m12 = -cos(phi)*sin(theta);
-        float m20 = 0;
-        float m21 = cos(phi);
-        float m22 = sin(phi);
-        if (m22 < 0) {
-            if (m00 >m11) {
-                float t = 1 + m00 -m11 -m22;
-                float q = quat( t, m01+m10, m20+m02, m12-m21 );
-            }
-            else {
-                float t = 1 -m00 + m11 -m22;
-                float q = quat( m01+m10, t, m12+m21, m20-m02 );
-            }
-        }
-        else {
-            if (m00 < -m11) {
-                float t = 1 -m00 -m11 + m22;
-                float q = quat( m20+m02, m12+m21, t, m01-m10 );
-            }
-            else {
-                float t = 1 + m00 + m11 + m22;
-                float q = quat( m12-m21, m20-m02, m01-m10, t );
-            }
-        }
-        q *= 0.5 / sqrt(t);
-        float q1 = q[0][0];
-        float q2 = q[0][1];
-        float q3 = q[0][2];
-        float q4 = q[0][3];
+        // 2d vector example
+        // std::vector<std::vector<double>> matrix;
 
+        // eigen cpp
+        Eigen::Matrix3d roll, pitch, yaw,convert, rot;
+        yaw << cos(theta),-sin(theta),0 ,
+            sin(theta),cos(theta),0,
+            0,0,1;
+        pitch << cos(phi),0,sin(phi),
+              0,1,0,
+              -sin(phi),0,cos(phi);
+        convert << 0,0,-1,
+              -1,0,0,
+              0,1,0;
+        
+
+        rot = yaw *pitch  * convert;
+
+        Eigen::Quaterniond q;
+        q = rot;
 
         geometry_msgs::Pose start_pose2;
-        start_pose2.orientation.x = q1;
-        start_pose2.orientation.y = q2;
-        start_pose2.orientation.z = q3;
-        start_pose2.orientation.w = q4;
+        start_pose2.orientation.x = q.x();
+        start_pose2.orientation.y = q.y();
+        start_pose2.orientation.z = q.z();
+        start_pose2.orientation.w = q.w();
         start_pose2.position.x = -y;
         start_pose2.position.y = z;
         start_pose2.position.z = -x;
@@ -109,25 +94,25 @@ void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::
         sensor_msgs::JointState joint_state;
         joint_state.position.resize(6);
         joint_state.name.resize(6);
-        joint_state.name[0] = "shoulder_pan_joint";
-        joint_state.name[1] = "shoulder_lift_joint";
-        joint_state.name[2] = "elbow_joint";
-        joint_state.name[3] = "wrist_1_joint";
-        joint_state.name[4] = "wrist_2_joint";
-        joint_state.name[5] = "wrist_3_joint";
+        joint_state.name = joint_model_group->getVariableNames();
+        // joint_state.name[1] = "shoulder_lift_joint";
+        // joint_state.name[2] = "elbow_joint";
+        // joint_state.name[3] = "wrist_1_joint";
+        // joint_state.name[4] = "wrist_2_joint";
+        // joint_state.name[5] = "wrist_3_joint";
 
-        std::vector<double>
-            joint_group_positions;
-        for (int i = 0; i < 6; i++)
-        {
-          joint_group_positions.push_back(0.0);
-        }
-        state->setVariablePositions(joint_state.name, joint_group_positions);
-        // group->setStartState(state(model->getModel()));
-        std::cout << "Joint names:";
-        for (auto n : joint_model_group->getJointModelNames())
-          std::cout << n << ",";
-        std::cout << std::endl;
+        // std::vector<double>
+        //     joint_group_positions;
+        // for (int i = 0; i < 6; i++)
+        // {
+        //   joint_group_positions.push_back(0.0);
+        // }
+        // state->setVariablePositions(joint_state.name, joint_values);
+        // // group->setStartState(state(model->getModel()));
+        // std::cout << "Joint names:";
+        // for (auto n : joint_model_group->getJointModelNames())
+        //   std::cout << n << ",";
+        // std::cout << std::endl;
 
         // joint_group_positions = {0, -M_PI / 2, 0.0, 0.0, -1.5708, 1.06041};
         group->setJointValueTarget(joint_values);
@@ -165,32 +150,34 @@ int main(int argc, char **argv)
   std::copy(move_group_interface.getJointModelGroupNames().begin(),
             move_group_interface.getJointModelGroupNames().end(), std::ostream_iterator<std::string>(std::cout, ", "));
   
-  
-  setposegoal(&move_group_interface, &planning_scene_interface, &start_state, &robot_model_loader);
+  while(true){
+      setposegoal(&move_group_interface, &planning_scene_interface, &start_state, &robot_model_loader);
 
+      // execute
+      moveit::planning_interface::MoveGroupInterface::Plan my_plan;
 
+      bool success = (move_group_interface.plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
 
-  // execute
-  moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+      ROS_INFO_NAMED("ur5", "Visualizing plan 1 (pose goal) %s", success ? "" : "FAILED");
 
-  bool success = (move_group_interface.plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+      if (success = true){
 
-  ROS_INFO_NAMED("ur5", "Visualizing plan 1 (pose goal) %s", success ? "" : "FAILED");
+      // visualise the paln path
 
-  // visualise the paln path
+      Eigen::Isometry3d text_pose = Eigen::Isometry3d::Identity();
+      text_pose.translation().z() = 1.0;
+      visual_tools.publishText(text_pose, "MoveGroupInterface Demo", rvt::WHITE, rvt::XLARGE);
+      ROS_INFO_NAMED("ur5", "Visualizing plan 1 as trajectory line");
+      visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
+      visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
+      visual_tools.trigger();
+      // visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue the demo");
 
-  Eigen::Isometry3d text_pose = Eigen::Isometry3d::Identity();
-  text_pose.translation().z() = 1.0;
-  visual_tools.publishText(text_pose, "MoveGroupInterface Demo", rvt::WHITE, rvt::XLARGE);
-  ROS_INFO_NAMED("ur5", "Visualizing plan 1 as trajectory line");
-  visual_tools.publishText(text_pose, "Pose Goal", rvt::WHITE, rvt::XLARGE);
-  visual_tools.publishTrajectoryLine(my_plan.trajectory_, joint_model_group);
-  visual_tools.trigger();
-  // visual_tools.prompt("Press 'next' in the RvizVisualToolsGui window to continue the demo");
-
-  // execute
-  moveit_msgs::RobotTrajectory trajectory;
-  move_group_interface.execute(trajectory);
-
-  return 0;
+      // execute
+      // moveit_msgs::RobotTrajectory my;
+      move_group_interface.execute(my_plan);
+      }
+      std::cin.get();
+}
+return 0;
 }
