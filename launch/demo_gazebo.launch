@@ -23,5 +23,7 @@
   <node pkg="ur5_moveit" type="joint_pub_gazebo_ur5_moveit.py" name="joint_pub_gazebo"/>
   <node pkg="tf" type="static_transform_publisher" name="ArucoID2" args="0.5 -0.5 0.5 0 -1.57 0 world your_marker 100" />
 
+  <!-- <node pkg="ur5_moveit" type="sampleforrange" args="/sampled_hand" name="sampleforrange" /> -->
+
 
 </launch>

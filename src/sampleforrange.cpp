@@ -17,6 +17,8 @@
 #include <cmath>
 #include <chrono>
 #include <Eigen/Geometry> 
+#include <tf/transform_broadcaster.h>
+#include <tf_conversions/tf_eigen.h>
 
 void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::planning_interface::PlanningSceneInterface* scene,robot_state::RobotState* state, robot_model_loader::RobotModelLoader* model){
   const moveit::core::JointModelGroup *joint_model_group =
@@ -35,13 +37,13 @@ void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::
     correct = fopen("correct.csv", "w");
     fprintf(correct, "Theta,Phi,x,y,z\n");
     // for (int i = 0; i < N; i++) {
-        double radius= 0.5;
-        double theta = 2 * M_PI * uniform01(generator);
-        double phi = M_PI * uniform01(generator);
-        
+        double radius= 0.9;
+        double theta = 0.5*2 * M_PI * uniform01(generator);
+        double phi = 0.5* M_PI * uniform01(generator);
         double x = radius*sin(phi) * cos(theta);
         double y = radius*sin(phi) * sin(theta);
         double z = radius*cos(phi);
+        
         // fprintf(correct, "%f,%f,%f,%f,%f\n", theta, phi, x, y, z);
 
         // double Point_marker[3][1]={x,y,z};
@@ -64,9 +66,9 @@ void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::
         pitch << cos(phi),0,sin(phi),
               0,1,0,
               -sin(phi),0,cos(phi);
-        mtoh << 0,-1,0,
-              0,0,1,
-              -1,0,0;
+        mtoh << 0,1,0,
+              1,0,0,
+              0,0,-1;
         oldhtom << 0,0,0,0,
                 0,0,0,0,
                 0,0,0,0,
@@ -82,6 +84,8 @@ void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::
                      0,0,0,z,
                      0,0,0,1;
         handtomarker.topLeftCorner(3,3)= rot;
+        std::cout << markertoworld<< std::endl;
+        std::cout << handtomarker<< std::endl;
       
         handtoworld = markertoworld*handtomarker*oldhtom;
         convert= handtoworld.topLeftCorner(3,3);
@@ -102,6 +106,16 @@ void setposegoal(moveit::planning_interface::MoveGroupInterface* group, moveit::
         std::cout << start_pose2 <<std::endl;
 
         group->setPoseTarget(start_pose2);
+
+        Eigen::Affine3d affine;
+        affine= handtoworld;
+        tf::Transform transform;
+        tf::poseEigenToTF(affine,transform);
+        static tf::TransformBroadcaster br;
+        std::string sampled_hand = "sampled_hand";
+        br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", sampled_hand));
+
+
         // state->setFromIK(joint_model_group, start_pose2);
         // std::vector<double> joint_values;
 
@@ -174,6 +188,8 @@ int main(int argc, char **argv)
             move_group_interface.getJointModelGroupNames().end(), std::ostream_iterator<std::string>(std::cout, ", "));
   
   
+      
+      while(true){
       setposegoal(&move_group_interface, &planning_scene_interface, &start_state, &robot_model_loader);
 
       // execute
@@ -200,7 +216,8 @@ int main(int argc, char **argv)
       // moveit_msgs::RobotTrajectory my;
       move_group_interface.execute(my_plan);
       }
-      // std::cin.get();
+      std::cin.get();
+      }
 
 return 0;
 }

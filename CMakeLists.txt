@@ -11,7 +11,12 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_core
   moveit_visual_tools
   eigen_conversions
+  tf_conversions
+  rosbag
+  cv_bridge
 )
+
+find_package(OpenCV REQUIRED)
 
 add_message_files(
   FILES
@@ -33,7 +38,9 @@ catkin_package(
 include_directories(
  include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
+
                                                                                          
 catkin_install_python(PROGRAMS
   scripts/publisharucotfreal.py
@@ -56,3 +63,6 @@ install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 add_executable(sampleforrange src/sampleforrange.cpp)
 target_link_libraries(sampleforrange ${catkin_LIBRARIES})
+
+add_executable(getdata src/getdata.cpp)
+target_link_libraries(getdata ${catkin_LIBRARIES})

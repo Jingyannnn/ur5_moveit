@@ -217,7 +217,7 @@
             <inertia ixx="8.062472608343e-05" ixy="0.0" ixz="0.0" iyy="8.062472608343e-05" iyz="0.0" izz="0.0001321171875" />
         </inertial>
     </link>
-<!--     
+    
    <link name="box_link">
      <inertial>
        <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -241,7 +241,7 @@
          <box size="1 1 0.0001" />
        </geometry>
      </collision>
-   </link> -->
+   </link>
    
     <!-- joints: main serial chain -->
 
@@ -325,11 +325,11 @@
         <parent link="base_link" />
         <child link="base" />
     </joint>
-    <!--  <joint name="box_link_joint" type="fixed">
+     <joint name="box_link_joint" type="fixed">
         <origin rpy="0 0 0" xyz="0 0 -0.1" />
         <parent link="base_link" />
         <child link="box_link" />
-    </joint> -->
+    </joint>
     <!-- ROS-Industrial 'flange' frame: attachment point for EEF models -->
     <link name="flange" />
     <joint name="wrist_3-flange" type="fixed">
