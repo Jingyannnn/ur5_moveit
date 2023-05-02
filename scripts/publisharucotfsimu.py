@@ -93,7 +93,7 @@ def publishtf(cap, mtx, dist):
 
         # estimate pose of each marker and return the values
         # rvet and tvec-different from camera coefficients
-    rvec, tvec ,_ = aruco.estimatePoseSingleMarkers(corners, 0.05, mtx, dist)
+    rvec, tvec ,_ = aruco.estimatePoseSingleMarkers(corners, 0.17, mtx, dist)
     print (tvec)
     #(rvec-tvec).any() # get rid of that nasty numpy value array error
 

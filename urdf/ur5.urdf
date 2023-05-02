@@ -511,4 +511,3 @@
         <plugin name="ros_control" filename="libgazebo_ros_control.so" />
     </gazebo> -->
 </robot>
-

@@ -30,13 +30,12 @@ generate_messages(
 )
 
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS 
   #LIBRARIES tf
   CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
 )
 
 include_directories(
- include
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
