@@ -29,7 +29,7 @@ def calibratecamera():
 
     # iterating through all calibration images
     # in the folder
-    images = glob.glob('src/checkerboard/*.jpg')
+    images = glob.glob('src/ur5_moveit/checkerboard/*.jpg')
     print(len(images))
     gray = None
     
