@@ -1,8 +1,19 @@
-## run rviz and gazebo
+## execute rviz and gazebo
 ```
 roslaunch ur5 demo_gazebo.launch
 ```
-
+## sample for points of certain range of marker, move end_effector to sampled points
+```
+rosrun ur5 sampleforrange
+```
+## check can see and identify the marker or not
+```
+rosrun ur5 publisharucotf.py
+```
+## if can identify, save the data as calibration required
+```
+rosrun ur5 getdata
+```
 ## add to .bashrc
 ```
 export GAZEBO_MODEL_PATH=~/<workspace_name>/src/ur5_moveit/aruco_gazebo:{GAZEBO_MODEL_PATH}
