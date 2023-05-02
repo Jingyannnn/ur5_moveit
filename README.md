@@ -1,3 +1,8 @@
+## run rviz and gazebo
+```
+roslaunch ur5 demo_gazebo.launch
+```
+
 ## add to .bashrc
 ```
 export GAZEBO_MODEL_PATH=~/<workspace_name>/src/ur5_moveit/aruco_gazebo:{GAZEBO_MODEL_PATH}
