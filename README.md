@@ -8,7 +8,7 @@ rosrun ur5 sampleforrange
 ```
 ## check can see and identify the marker or not
 ```
-rosrun ur5 publisharucotf.py
+rosrun ur5 publisharucotfsimu.py
 ```
 ## if can identify, save the data as calibration required
 ```
