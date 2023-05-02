@@ -1,18 +1,18 @@
 ## execute rviz and gazebo
 ```
-roslaunch ur5 demo_gazebo.launch
+roslaunch ur5_moveit demo_gazebo.launch
 ```
 ## sample for points of certain range of marker, move end_effector to sampled points
 ```
-rosrun ur5 sampleforrange
+rosrun ur5_moveit sampleforrange
 ```
 ## check can see and identify the marker or not
 ```
-rosrun ur5 publisharucotfsimu.py
+rosrun ur5_moveit publisharucotfsimu.py
 ```
 ## if can identify, save the data as calibration required
 ```
-rosrun ur5 getdata
+rosrun ur5_moveit getdata
 ```
 ## add to .bashrc
 ```
